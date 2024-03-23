@@ -1,20 +1,27 @@
+import re
 from threading import Thread
 from botHandlers import client as bot
 from userBotHandlers import client as user, targets
 
-archive = []
-
 
 def get_all_history():
     user.start()
-    for target in targets:
-        for message in user.get_chat_history(target):
-            archive.append(message)
+    with open("data.jsonline", "a+") as json_file:
+        json_file.seek(0)
+        file_text = json_file.read()
+        for target in targets:
+            for msg in user.get_chat_history(target):
+                msg_id = str(msg.chat.id) + ":" + str(msg.id)
+                if not re.findall(msg_id, file_text):
+                    print(msg_id, " - добавлен")
+                    json_file.write("\n{\"id\": " + msg_id + "}")
     user.stop()
-    print(len(archive))
+
+
 
 def main():
     get_all_history()
+    print("Message Aggregator started...")
     for thread in [Thread(target=bot.run()), Thread(target=user.run())]:
         thread.daemon = True
         thread.start()
