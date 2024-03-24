@@ -4,7 +4,7 @@ from requests import HTTPError
 from fuzzywuzzy import fuzz
 from functions import send_json, get_json_as_dict, save_jsonline_in_file
 
-from config import API_ID, API_HASH, BOT_TOKEN, KEYWORDS
+from config import API_ID, API_HASH, BOT_TOKEN
 
 waiting_list = {}
 

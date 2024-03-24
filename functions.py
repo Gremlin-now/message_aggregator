@@ -8,8 +8,10 @@ from config import targets
 
 def send_json(j_dict):
     if len(j_dict["content"].split()) >= 2:
-        requests.post("http://79.174.84.206:5000/api/neural", data=j_dict)
+        response = requests.post("http://127.0.0.1:5000/api/neural", data=j_dict)
+        print(j_dict, " - отправил - ", response.status_code)
         return True
+    print(j_dict, " -не отправил")
     return False
 
 
@@ -41,8 +43,9 @@ def save_jsonline_in_file(j_dict: dict, file_name: str = "data.jsonline"):
     with open(file_name, "a+", encoding="utf8") as json_file:
         json_file.seek(0)
         file_text = json_file.read()
+
         if not re.findall(json_string, file_text):
-            json_file.write(json_string)
+            json_file.write(json_string+"\n")
             return True
     return False
 

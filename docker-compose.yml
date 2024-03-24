@@ -1,0 +1,21 @@
+version: "3.3"
+services:
+  api:
+    build: /api
+    restart: on-failure
+    command: python ./main.py
+    ports:
+      - 5000:5000
+  msg_agg:
+    image: python:3.11
+    build: .
+    restart: no
+    command: python ./app.py
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - 80:80
+    volumes:
+      - app:/home
+volumes:
+  app:
