@@ -1,23 +1,17 @@
 from pyrogram import Client, filters
-from dotenv import dotenv_values
+from config import API_ID, API_HASH
+from functions import save_jsonline_in_file, send_json, get_json_as_dict
+from config import targets
 
-config = dotenv_values(".env")
 
-API_ID = int(config["API_ID"])
-API_HASH = config["API_HASH"]
 
-targets = [
-    "LostFoundK",
-    "kriminalunet",
-    "poteryal_azn"
-]
 
 client = Client("msgHandler", api_id=API_ID, api_hash=API_HASH)
 
 
 @client.on_message(filters.chat(targets))
-def get_new_messages(client, msg):
-    with open("data.jsonlines", "a") as json_file:
-        msg_id = str(msg.chat.id) + ":" + str(msg.id)
-        print(print(msg_id, " - добавлен"))
-        json_file.write("\n{\"id\": "+msg_id+"}")
+async def get_new_messages(_, msg):
+    j_dict = get_json_as_dict(msg)
+    if save_jsonline_in_file(j_dict):
+        send_json(j_dict)
+
