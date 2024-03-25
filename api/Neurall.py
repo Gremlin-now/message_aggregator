@@ -12,7 +12,7 @@ class NerualClass:
         self.index = self.pc.Index(config["INDEX"], dimension=1536)
         self.embeddings = OpenAIEmbeddings(api_key=openai_api_key)
         self.chat = ChatOpenAI(
-            temperature=0.4,
+            temperature=0.6,
             openai_api_key=openai_api_key,
         )
 
@@ -23,14 +23,15 @@ class NerualClass:
         )
         return True
 
-    def ask_question(self, text, top_k=10):
+    def ask_question(self, text):
         vector = self.embeddings.embed_query(text)
-        response = self.index.query(vector=vector, top_k=top_k, include_metadata=True)
-        metadata_list = [json.loads(match['metadata']['genre'].replace("'", '"')) for match in response['matches']]
-        return json.dumps(metadata_list)
+        response = self.index.query(vector=vector, top_k=10, include_metadata=True)
+        metadata = [{'id': match['id'], 'metadata': match['metadata']} for match in response['matches']]
+        data = metadata[0]['metadata']['genre']
+        return data
 
     def invoke_chat(self, text, data):
-        prompt = f"Верини мне один или несколько максимально подходящих данных на запрос '{text}', мне нужен формат json в возможном виде нескольких объектов [ <json>, <json>], в json должен состоять из username, msg_id и content, если подходящих данных нет или нет хотя бы одного из необходимых мне параметров, не возвращай мне эти данные"
+        prompt = f"Верини мне максимально подходящие данные на запрос '{text}', мне нужен формат json в возможном виде нескольких объектов [ <json>, <json>], в json должен состоять из chat_id, msg_id и content, если подходящих данных нет или нет хотя бы одного из необходимых мне параметров, не возвращай мне эти данные"
         messages = [
             SystemMessage(content=prompt),
             HumanMessage(content=data),
